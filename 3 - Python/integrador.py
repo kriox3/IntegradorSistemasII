@@ -2,6 +2,7 @@ import sqlite3
 import click
 import traceback
 import sys
+from tabulate import tabulate
 
 
 def clrscr():
@@ -87,7 +88,7 @@ def altaInstitutos():
         print("Agregado Correctamente ",
           cursor.rowcount)
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuInstitutos()
 
 
@@ -98,6 +99,8 @@ def altaInstitutos():
         print('Imprimiendo detalles: ')
         exc_type, exc_value, exc_tb = sys.exc_info()
         print(traceback.format_exception(exc_type, exc_value, exc_tb))
+        input("Presione una tecla para continuar... ")
+        menuInstitutos()
     finally:
         print()
 
@@ -120,13 +123,15 @@ def modInstitutos():
             sqlite_lista = """SELECT * from instituto"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'nombre', 'cue', 'direccion', 'telefono','web']))
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCarreras()
+
         finally:
             print()
 
@@ -147,7 +152,7 @@ def modInstitutos():
         sqliteConnection.commit()
         print("Registro Actualizado ")
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuInstitutos()
 
     except sqlite3.Error as error:
@@ -157,7 +162,76 @@ def modInstitutos():
 
 
 def bajaInstitutos():
-    print()
+    try:
+        try:
+            cursor = sqliteConnection.cursor()
+            clrscr()
+            print("Borrando Instituto: ")
+            print()
+            sqlite_cuenta = """SELECT count(*) from instituto"""
+            cursor.execute(sqlite_cuenta)
+            totalRows = cursor.fetchone()
+            total = totalRows[0]
+            print("Instituto disponibles:  ", total)
+            cursor.close()
+
+            cursor = sqliteConnection.cursor()
+            sqlite_lista = """SELECT * from instituto"""
+            cursor.execute(sqlite_lista)
+            rows = cursor.fetchall()
+            print()
+            print(tabulate(rows, headers=['Id', 'nombre', 'cue', 'direccion', 'telefono','web']))
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
+            menuInstitutos()
+        finally:
+            print()
+
+        print("De los anteriores, digite solo el id del Instituto:")
+        instituto_id = input("Id Instituto: ")
+
+        cursor = sqliteConnection.cursor()
+
+        try:
+            cursor = sqliteConnection.cursor()
+            sqlite_cuenta = """SELECT count(*) from carrera where instituto_id="""+instituto_id
+            cursor.execute(sqlite_cuenta)
+            totalRows = cursor.fetchone()
+            total = totalRows[0]
+            cursor.close()
+
+            if total > 0:
+                print("NO SE PUEDE BORRAR, tiene informacion vinculada a otras tablas.")
+            else:
+                cursor = sqliteConnection.cursor()
+                sqlite_update_query = """Delete from instituto where id = ?"""
+                columnValues = (instituto_id)
+                cursor.execute(sqlite_update_query, columnValues)
+                sqliteConnection.commit()
+                print("Registro Borrado ")
+
+        except sqlite3.Error as error:
+            print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
+            menuInstitutos()
+        finally:
+            print()
+
+        
+        
+        
+        cursor.close()
+        input("Presione una tecla para continuar... ")
+
+        menuInstitutos()
+
+    except sqlite3.Error as error:
+        print("Fallo Actualizar tabla", error)
+    finally:
+        print()
 
 
 def listaInstitutos():
@@ -177,17 +251,18 @@ def listaInstitutos():
         sqlite_lista = """SELECT * from instituto"""
         cursor.execute(sqlite_lista)
         rows = cursor.fetchall()
-        for row in rows:
-            print(row)
+        print()
+        print(tabulate(rows, headers=['Id', 'nombre', 'cue', 'direccion', 'telefono','web']))
         cursor.close()
 
     except sqlite3.Error as error:
         print("Error a leer datos de la tabla ", error)
+        input("Presione una tecla para continuar... ")
         menuInstitutos()
     finally:
         print()
     
-    input("Presione cualquier tecla para volver... ")
+    input("Presione una tecla para continuar... ")
     menuInstitutos()
 
 
@@ -245,12 +320,14 @@ def altaCarreras():
             sqlite_lista = """SELECT id, nombre from instituto"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'nombre']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -273,7 +350,7 @@ def altaCarreras():
         print("Agregado Correctamente ",
           cursor.rowcount)
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuCarreras()
 
 
@@ -306,12 +383,14 @@ def modCarreras():
             sqlite_lista = """SELECT * from carrera"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'instituto_id', 'codigo', 'nombre', 'resolucion','duracion','activo']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCarreras()
         finally:
             print()
@@ -333,12 +412,14 @@ def modCarreras():
             sqlite_lista = """SELECT id, nombre from instituto"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'nombre']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCarreras()
         finally:
             print()
@@ -360,7 +441,7 @@ def modCarreras():
         sqliteConnection.commit()
         print("Registro Actualizado ")
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuCarreras()
 
     except sqlite3.Error as error:
@@ -370,7 +451,75 @@ def modCarreras():
 
 
 def bajaCarreras():
-    print()
+    try:
+        try:
+            cursor = sqliteConnection.cursor()
+            clrscr()
+            print("Borrando Carrera: ")
+            print()
+            sqlite_cuenta = """SELECT count(*) from carrera"""
+            cursor.execute(sqlite_cuenta)
+            totalRows = cursor.fetchone()
+            total = totalRows[0]
+            print("Carreras disponibles:  ", total)
+            cursor.close()
+
+            cursor = sqliteConnection.cursor()
+            sqlite_lista = """SELECT * from carrera"""
+            cursor.execute(sqlite_lista)
+            rows = cursor.fetchall()
+            print()
+            print(tabulate(rows, headers=['Id', 'instituto_id', 'codigo', 'nombre', 'resolucion','duracion','activo']))
+            print()
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
+            menuCarreras()
+        finally:
+            print()
+
+        print("De los anteriores, digite solo el id de la Carrera:")
+        carrera_id = input("Id Carrera: ")
+
+        cursor = sqliteConnection.cursor()
+
+        try:
+            cursor = sqliteConnection.cursor()
+            sqlite_cuenta = """SELECT count(*) from cursada where carrera_id="""+carrera_id
+            cursor.execute(sqlite_cuenta)
+            totalRows = cursor.fetchone()
+            total = totalRows[0]
+            cursor.close()
+
+            if total > 0:
+                print("NO SE PUEDE BORRAR, tiene informacion vinculada a otras tablas.")
+            else:
+                cursor = sqliteConnection.cursor()
+                sqlite_update_query = """Delete from carrera where id = ?"""
+                columnValues = (carrera_id)
+                cursor.execute(sqlite_update_query, columnValues)
+                sqliteConnection.commit()
+                print("Registro Borrado ")
+
+        except sqlite3.Error as error:
+            print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
+            menuCarreras()
+        finally:
+            print()
+
+        cursor.close()
+        input("Presione una tecla para continuar... ")
+        menuCarreras()
+
+    except sqlite3.Error as error:
+        print("Fallo Actualizar tabla", error)
+        input("Presione una tecla para continuar... ")
+        menuCarreras()
+    finally:
+        print()
 
 
 def listaCarreras():
@@ -390,17 +539,19 @@ def listaCarreras():
         sqlite_lista = """SELECT * from carrera"""
         cursor.execute(sqlite_lista)
         rows = cursor.fetchall()
-        for row in rows:
-            print(row)
+        print()
+        print(tabulate(rows, headers=['Id', 'instituto_id', 'codigo', 'nombre', 'resolucion','duracion','activo']))
+        print()
         cursor.close()
 
     except sqlite3.Error as error:
         print("Error a leer datos de la tabla ", error)
+        input("Presione una tecla para continuar... ")
         menuCarreras()
     finally:
         print()
     
-    input("Presione cualquier tecla para volver... ")
+    input("Presione una tecla para continuar... ")
     menuCarreras()
 
 
@@ -462,7 +613,7 @@ def altaEstudiantes():
         print("Agregado Correctamente ",
           cursor.rowcount)
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuEstudiantes()
 
 
@@ -473,6 +624,8 @@ def altaEstudiantes():
         print('Imprimiendo detalles: ')
         exc_type, exc_value, exc_tb = sys.exc_info()
         print(traceback.format_exception(exc_type, exc_value, exc_tb))
+        input("Presione una tecla para continuar... ")
+        menuEstudiantes()
     finally:
         print()
 
@@ -495,12 +648,14 @@ def modEstudiantes():
             sqlite_lista = """SELECT * from estudiante"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'apellido', 'nombre', 'dni', 'fecha_nacimiento','foto_dni','foto_secundario','telefono','email']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuEstudiantes()
         finally:
             print()
@@ -526,11 +681,13 @@ def modEstudiantes():
         sqliteConnection.commit()
         print("Registro Actualizado ")
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuEstudiantes()
 
     except sqlite3.Error as error:
         print("Fallo Actualizar tabla", error)
+        input("Presione una tecla para continuar... ")
+        menuEstudiantes()
     finally:
         print()
 
@@ -553,12 +710,14 @@ def bajaEstudiantes():
             sqlite_lista = """SELECT * from estudiante"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'apellido', 'nombre', 'dni', 'fecha_nacimiento','foto_dni','foto_secundario','telefono','email']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuEstudiantes()
         finally:
             print()
@@ -574,34 +733,33 @@ def bajaEstudiantes():
             cursor.execute(sqlite_cuenta)
             totalRows = cursor.fetchone()
             total = totalRows[0]
-            total = totalRows[0]
-            print("Estudiantes disponibles:  ", total)
             cursor.close()
 
             if total > 0:
-                print("TIENE REGISTRO no puede eliminar")
+                print("NO SE PUEDE BORRAR, tiene informacion vinculada a otras tablas.")
             else:
-                print("Puede borrar")
+                cursor = sqliteConnection.cursor()
+                sqlite_update_query = """Delete from estudiante where id = ?"""
+                columnValues = (estudiante_Id)
+                cursor.execute(sqlite_update_query, columnValues)
+                sqliteConnection.commit()
+                print("Registro Borrado ")
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuEstudiantes()
         finally:
             print()
 
-        
-        #sqlite_update_query = """Delete from estudiante where id = ?"""
-        #columnValues = (estudiante_Id)
-        #cursor.execute(sqlite_update_query, columnValues)
-        #sqliteConnection.commit()
-        #print("Registro Borrado ")
-        
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuEstudiantes()
 
     except sqlite3.Error as error:
         print("Fallo Actualizar tabla", error)
+        input("Presione una tecla para continuar... ")
+        menuEstudiantes()
     finally:
         print()
 
@@ -623,17 +781,19 @@ def listaEstudiantes():
         sqlite_lista = """SELECT * from estudiante"""
         cursor.execute(sqlite_lista)
         rows = cursor.fetchall()
-        for row in rows:
-            print(row)
+        print()
+        print(tabulate(rows, headers=['Id', 'apellido', 'nombre', 'dni', 'fecha_nacimiento','foto_dni','foto_secundario','telefono','email']))
+        print()
         cursor.close()
 
     except sqlite3.Error as error:
         print("Error a leer datos de la tabla ", error)
+        input("Presione una tecla para continuar... ")
         menuEstudiantes()
     finally:
         print()
     
-    input("Presione cualquier tecla para volver... ")
+    input("Presione una tecla para continuar... ")
     menuEstudiantes()
 
 
@@ -691,12 +851,14 @@ def altaCursadas():
             sqlite_lista = """SELECT id, apellido, nombre, dni from estudiante"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'apellido', 'nombre', 'dni']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -718,12 +880,14 @@ def altaCursadas():
             sqlite_lista = """SELECT id, nombre, resolucion from carrera WHERE activo=1"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id','nombre','resolucion']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -744,7 +908,7 @@ def altaCursadas():
         print("Agregado Correctamente ",
           cursor.rowcount)
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuCursadas()
 
 
@@ -755,6 +919,8 @@ def altaCursadas():
         print('Imprimiendo detalles: ')
         exc_type, exc_value, exc_tb = sys.exc_info()
         print(traceback.format_exception(exc_type, exc_value, exc_tb))
+        input("Presione una tecla para continuar... ")
+        menuCursadas()
     finally:
         print()
 
@@ -777,12 +943,14 @@ def modCursadas():
             sqlite_lista = """SELECT * from cursada"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'estudiante_id', 'carrera_id', 'fecha_inscripcion', 'actual','finalizada']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -804,12 +972,14 @@ def modCursadas():
             sqlite_lista = """SELECT id, apellido, nombre, dni from estudiante"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'apellido', 'nombre', 'dni']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -831,12 +1001,14 @@ def modCursadas():
             sqlite_lista = """SELECT id, nombre, resolucion from carrera WHERE activo=1"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'nombre', 'resolucion']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -856,11 +1028,13 @@ def modCursadas():
         sqliteConnection.commit()
         print("Registro Actualizado ")
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuCursadas()
 
     except sqlite3.Error as error:
         print("Fallo Actualizar tabla", error)
+        input("Presione una tecla para continuar... ")
+        menuCursadas()
     finally:
         print()
 
@@ -883,12 +1057,14 @@ def bajaCursadas():
             sqlite_lista = """SELECT * from cursada"""
             cursor.execute(sqlite_lista)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            print()
+            print(tabulate(rows, headers=['Id', 'estudiante_id', 'carrera_id', 'fecha_inscripcion', 'actual','finalizada']))
+            print()
             cursor.close()
 
         except sqlite3.Error as error:
             print("Error a leer datos de la tabla ", error)
+            input("Presione una tecla para continuar... ")
             menuCursadas()
         finally:
             print()
@@ -903,11 +1079,13 @@ def bajaCursadas():
         sqliteConnection.commit()
         print("Registro Borrado ")
         cursor.close()
-
+        input("Presione una tecla para continuar... ")
         menuCursadas()
 
     except sqlite3.Error as error:
         print("Fallo Actualizar tabla", error)
+        input("Presione una tecla para continuar... ")
+        menuCursadas()
     finally:
         print()
 
@@ -929,17 +1107,19 @@ def listaCursadas():
         sqlite_lista = """SELECT * from cursada"""
         cursor.execute(sqlite_lista)
         rows = cursor.fetchall()
-        for row in rows:
-            print(row)
+        print()
+        print(tabulate(rows, headers=['Id', 'estudiante_id', 'carrera_id', 'fecha_inscripcion', 'actual','finalizada']))
+        print()
         cursor.close()
 
     except sqlite3.Error as error:
         print("Error a leer datos de la tabla ", error)
+        input("Presione una tecla para continuar... ")
         menuCursadas()
     finally:
         print()
     
-    input("Presione cualquier tecla para volver... ")
+    input("Presione una tecla para continuar... ")
     menuCursadas()
 
 
